@@ -1,16 +1,21 @@
 import { Router, Request, Response, NextFunction } from 'express'
 
+// Middleware
+import validationSchema from '@/middlewares/validation.middleware'
+import validationJWT from '@/middlewares/authenticated.middleware'
+
 // Services
 import UserService from './user.service'
+// Utils
+import validationUser from './user.middleware'
+import { generateToken } from '../../utils/token'
 
 // Interfaces
 import Controller from '@/utils/interfaces/controller.interfaces'
-import validationSchema from '@/middlewares/validation.middleware'
 import schema from '@/resources/users/user.validate'
+
+// Error
 import HttpExceptions from '@/utils/exceptions/http.exception'
-import validationUser from './user.middleware'
-import validationJWT from '@/middlewares/authenticated.middleware'
-import { generateToken } from '../../utils/token'
 
 const userService = new UserService()
 
@@ -51,12 +56,11 @@ class UserController implements Controller {
     const { email, password } = req.body
     try {
       const newUser = await userService.findByEmail(email)
-
       //*Validate Password
       const validPassword = await newUser.comparePassword(password)
       if(!validPassword) return next(new HttpExceptions('Usuario o Contraseña no son correctos', 400))
 
-      const { uid } = newUser
+      const { uid } = newUser.toJSON()
 
       //* JWT
       const token = generateToken(uid, email)
@@ -74,7 +78,6 @@ class UserController implements Controller {
     next: NextFunction
   ) {
     const { email, uid } = req.body.user
-
     const token = generateToken(uid, email)
     res.status(200).json({
       token

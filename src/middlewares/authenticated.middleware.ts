@@ -11,7 +11,6 @@ const validationJWT = async(
 ) => 
 {
   const token = req.header('x-token')
-  console.log(token)
   if(!token) return next(new HttpExceptions('Unauthorised', 401))
 
   const payload = await verifyToken(token)
