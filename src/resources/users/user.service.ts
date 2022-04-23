@@ -22,11 +22,12 @@ class UserService {
   /**
    * Find a user by email
    */
-  public async findByEmail(email: string): Promise<User>{
+  public async findByEmail(email: string): Promise<User | null>{
 
     try {
       const user = await this.user.findOne({email})
-      if(!user) throw new Error('Usuario o contraseña no son correctos')
+      
+      if(!user) return user
       return user
     } catch (error) {
       throw new Error('comunicate ')

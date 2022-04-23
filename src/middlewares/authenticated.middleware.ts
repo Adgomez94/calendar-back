@@ -17,7 +17,8 @@ const validationJWT = async(
   if (payload instanceof jwt.JsonWebTokenError) return next(new HttpExceptions('Unauthorised', 401))
   req.body.user = {
     uid: payload.uid,
-    email: payload.email
+    email: payload.email,
+    name: payload.name
   }
   next()
 }

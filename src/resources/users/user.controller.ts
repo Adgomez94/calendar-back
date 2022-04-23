@@ -56,16 +56,18 @@ class UserController implements Controller {
     const { email, password } = req.body
     try {
       const newUser = await userService.findByEmail(email)
+      if(!newUser) return next(new HttpExceptions('Usuario o Contraseña no son correctos', 400))
       //*Validate Password
       const validPassword = await newUser.comparePassword(password)
       if(!validPassword) return next(new HttpExceptions('Usuario o Contraseña no son correctos', 400))
 
-      const { uid } = newUser.toJSON()
-
+      const { uid, name } = newUser.toJSON()
       //* JWT
-      const token = generateToken(uid, email)
+      const token = generateToken(uid, email, name)
       res.status(200).json({
-        token
+        token,
+        name, 
+        uid
       })
     } catch (error) {
       if(error instanceof Error) next(new HttpExceptions(error.message, 500))
@@ -77,10 +79,12 @@ class UserController implements Controller {
     res: Response,
     next: NextFunction
   ) {
-    const { email, uid } = req.body.user
-    const token = generateToken(uid, email)
+    const { email, uid, name } = req.body.user
+    const token = generateToken(uid, email,name)
     res.status(200).json({
-      token
+      token,
+      name,
+      uid
     })
   }
 }
